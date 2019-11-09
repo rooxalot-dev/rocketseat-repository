@@ -8,7 +8,7 @@ export default function Routes() {
     return (
         <Switch>
             <Route path="/" exact component={Main} />
-            <Route path="/repository" component={Repository} />
+            <Route path="/repository/:repository" component={Repository} />
         </Switch>
     );
 }

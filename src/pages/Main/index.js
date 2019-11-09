@@ -1,15 +1,38 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
-import api from '../../services/api';
+import { Link } from 'react-router-dom';
 
-import { Container, Form, SubmitButton } from './styles';
+import api from '../../services/api';
+import Container from '../../components/Container';
+import { Form, SubmitButton, List } from './styles';
 
 export default class Main extends Component {
-    state = {
-        newRepository: '',
-        repositories: [],
-        loading: false,
-    };
+    constructor() {
+        super();
+        this.state = {
+            newRepository: '',
+            repositories: [],
+            loading: false,
+        };
+    }
+
+    componentDidMount() {
+        const repositoriesJson = localStorage.getItem('rocket-repositories');
+        const repostoriesArray = JSON.parse(repositoriesJson || '[]');
+
+        this.setState({ repositories: repostoriesArray });
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        const prevRepositories = prevState.repositories;
+
+        if (prevRepositories && prevRepositories.length > 0) {
+            localStorage.setItem(
+                'rocket-repositories',
+                JSON.stringify(prevRepositories)
+            );
+        }
+    }
 
     handleInputChange = e => {
         this.setState({ [e.target.name]: e.target.value });
@@ -38,7 +61,7 @@ export default class Main extends Component {
     };
 
     render() {
-        const { newRepository, loading } = this.state;
+        const { newRepository, repositories, loading } = this.state;
 
         return (
             <Container>
@@ -54,7 +77,7 @@ export default class Main extends Component {
                         type="text"
                         placeholder="Adicionar repositório"
                     />
-                    <SubmitButton loading={this.state.loading}>
+                    <SubmitButton loading={Number(this.state.loading)}>
                         {loading ? (
                             <FaSpinner color="#fff" size={14} />
                         ) : (
@@ -62,6 +85,21 @@ export default class Main extends Component {
                         )}
                     </SubmitButton>
                 </Form>
+
+                <List>
+                    {repositories.map(repository => (
+                        <li key={repository.name}>
+                            <span>{repository.name}</span>
+                            <Link
+                                to={`/repository/${encodeURIComponent(
+                                    repository.name
+                                )}`}
+                            >
+                                Detalhes
+                            </Link>
+                        </li>
+                    ))}
+                </List>
             </Container>
         );
     }

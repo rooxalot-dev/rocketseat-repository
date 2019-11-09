@@ -35,6 +35,7 @@ module.exports = {
         "react/prefer-stateless-function": "off",
         "react/state-in-constructor": "off",
         "react/destructuring-assignment": "off",
+        "react/no-unused-state": "off",
         "constructor-super": "off",
         "no-this-before-super": "off"
     }
