@@ -13,6 +13,7 @@ export default class Main extends Component {
             newRepository: '',
             repositories: [],
             loading: false,
+            error: false,
         };
     }
 
@@ -41,9 +42,21 @@ export default class Main extends Component {
     handleSubmit = async e => {
         e.preventDefault();
         this.setState({ loading: true });
+        this.setState({ error: false });
 
         const { newRepository, repositories } = this.state;
         try {
+            if (!newRepository) {
+                throw new Error('Novo repositório não foi especificado');
+            }
+
+            const existingRepository = repositories.find(
+                r => r.name.toLowerCase() === newRepository.toLowerCase()
+            );
+            if (existingRepository) {
+                throw new Error('Repositório duplicado');
+            }
+
             const { data } = await api.get(`repos/${newRepository}`);
             const dataObj = {
                 name: data.full_name,
@@ -54,7 +67,7 @@ export default class Main extends Component {
                 newRepository: '',
             });
         } catch (error) {
-            console.log('Unable to fetch repository info!');
+            this.setState({ error: true });
         } finally {
             this.setState({ loading: false });
         }
@@ -69,7 +82,10 @@ export default class Main extends Component {
                     <FaGithubAlt />
                     Repositórios
                 </h1>
-                <Form onSubmit={this.handleSubmit}>
+                <Form
+                    onSubmit={this.handleSubmit}
+                    error={Number(this.state.error)}
+                >
                     <input
                         value={newRepository}
                         name="newRepository"
